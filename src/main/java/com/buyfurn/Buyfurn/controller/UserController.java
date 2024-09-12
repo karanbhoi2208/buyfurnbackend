@@ -38,6 +38,13 @@ public class UserController {
 	public User registerUser(@RequestBody User user) {
 		return userService.createUser(user);
 	}
+	
+	@PostMapping("/updatepassword")
+	public ResponseEntity<Void> updatePassword(@RequestBody User user) {
+	    userService.updatePassword(user);
+	    return ResponseEntity.ok().build(); 
+	}
+
 
 	@GetMapping("/_updateuserrole/{id}/{role}")
 	public User updateUserRole(@PathVariable Long id, @PathVariable List<String> role) {
@@ -62,11 +69,12 @@ public class UserController {
 	@PostMapping("/generate-otp")
 	public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> request) {
 		String email = request.get("email");
-		if (userService.verifyEmail(email)) {
-
-			return new ResponseEntity<String>(HttpStatus.FOUND);
-		}
 		String otp = userService.generateOtp(email);
+		
+		if (userService.verifyEmail(email)) {
+			
+			return new ResponseEntity<String>(otp,HttpStatus.FOUND);
+		}
 
 		return new ResponseEntity<String>(otp, HttpStatus.OK);
 	}
@@ -75,6 +83,7 @@ public class UserController {
 	public boolean verifyOtp(@RequestBody Map<String, String> request) {
 		String email = request.get("email");
 		String otp = request.get("otp");
+		
 		return userService.validateOtp(email, otp);
 	}
 

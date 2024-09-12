@@ -47,26 +47,28 @@ public class UserService {
 		return userRepository.findByEmail(username);
 	}
 	
-	private final Map<String, String> otpStorage = new HashMap<>();
+	private final Map<String, String> otps = new HashMap<>();
 	private final SecureRandom random = new SecureRandom();
 
 	public String generateOtp(String email) {
-		String otp = String.valueOf(100000 + random.nextInt(900000)); // Generate 6-digit OTP
-		otpStorage.put(email, otp);
+			
+		String otp = String.valueOf(100000 + random.nextInt(900000)); 
+		otps.put(email, otp);
 		return otp;
 	}
 
 	public boolean validateOtp(String email, String otp) {
-		String storedOtp = otpStorage.get(email);
+		String storedOtp = otps.get(email);
+
 		if (storedOtp != null && storedOtp.equals(otp)) {
-			otpStorage.remove(email); 
+			otps.remove(email); 
 			return true;
 		}
 		return false;
 	}
 
 	public void clearOtp(String email) {
-		otpStorage.remove(email);
+		otps.remove(email);
 	}
 
 	public boolean verifyEmail(String email) {
@@ -126,5 +128,13 @@ public class UserService {
 
 	public void updateUserCart(User user) {
 		  userRepository.save(user);
+	}
+
+	public User updatePassword(User user) {
+		String email=user.getEmail();
+		User existingUser=userRepository.findByEmail(email);
+		existingUser.setPasword(encoder.encode(user.getPasword()));
+		userRepository.save(existingUser);
+		return existingUser;
 	}
 }
